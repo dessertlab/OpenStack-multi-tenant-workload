@@ -45,13 +45,15 @@ For example, the directory "`Nova/Test_1/logs/round_1/cinder`" contains the log 
 
 Furthermore, for each round, there is the "`foreground_wl`" subfolder containing the log files of the workload:
 
-* `openstack_demo_workload-timestamp.out.log.bzip2.out` (contains the log messages of the workload execution)
+* `openstack_demo_workload-<tenant_id>-timestamp.out.log.bzip2.out` (contains the log messages of the workload execution)
 
-* `openstack_demo_workload-timestamp.err.log.bzip2.out` (contains the error messages during the workload execution, including both API Errors and Assertion Failures).
+* `openstack_demo_workload-<tenant_id>-timestamp.err.log.bzip2.out` (contains the error messages during the workload execution, including both API Errors and Assertion Failures).
+
+where <tenant_id> is a number between 0 and 9 representing one of the 10 different tenants.
 
 Each subfolder "`Test_<id>/logs/round_number`" contains also the file "`trace_Test_<id>.log`". This file is a JSON file containing all the messages exchanged in OpenStack during the execution of the workload. These messages are collected with the distributed tracing system [Zipkin](https://zipkin.io/).
 
 
 ## Fault-Free
 
-The folder "`Fault-Free`" includes the raw logs from 50 correct execution of the OpenStack cloud computing systems, i.e., when no fault is injected in the system.
+The folder "`Fault-Free`" includes the raw logs from 50 correct execution of the OpenStack cloud computing systems, i.e., when no fault is injected into the system.
