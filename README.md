@@ -6,21 +6,21 @@ This repository contains the logs collected during the execution of the OpenStac
 The workload simulates 10 different tenants performing concurrent operations on the cloud infrastructure.
 The tenants exhibit 6 different profiles, as described in the following:
 
-* *Volume Only*: The tenant performs operations strictly related to the block storage (Cinder subsystem);
+* *Volume*: The tenant performs operations strictly related to the block storage (Cinder subsystem);
  
-* *Instance Only*: The tenant stresses the Nova subsystem for the creation of VM instances;
+* *Instance*: The tenant stresses the Nova subsystem for the creation of VM instances;
     
-* *Network Only*: The tenant creates network resources (networks, sub-networks, IP addresses, routers, etc.), stressing the Neutron subsystem;
+* *Network*: The tenant creates network resources (networks, sub-networks, IP addresses, routers, etc.), stressing the Neutron subsystem;
     
-* *Instance before Volume*: The tenant creates an instance from an image, then a storage volume;
+* *Instance Volume*: The tenant creates an instance from an image, then a storage volume;
     
-* *Volume before Instance*: The tenant creates a volume and then an instance starting from the volume;
+* *Volume Instance*: The tenant creates a volume and then an instance starting from the volume;
     
-* *Instance, Volume, and Network*: The tenant stresses the Nova, Cinder, and Neutron subsystems in a balanced way. 
+* *DEPL (Deployment workload)*: The tenant stresses the Nova, Cinder, and Neutron subsystems in a balanced way. 
     
 These six profiles are run concurrently to generate a multi-tenant workload. The *Volume Only*, *Network Only*, *Instance before Volume*, and *Volume before Instance* profiles are run twice by different tenants, as shown in the following figure.
 
-![alt text](https://github.com/dessertlab/OpenStack-multi-tenant-workload/edit/main/image.jpg?raw=true)
+![alt text](https://github.com/dessertlab/OpenStack-multi-tenant-workload/blob/main/img/workload.png?raw=true)
 
 
 
