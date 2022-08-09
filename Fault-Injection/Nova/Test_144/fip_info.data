@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-INSTANCE
+TARGET COMPONENT: /nova/compute/api.py
+TARGET CLASS: API
+TARGET FUNCTION DEF: _do_delete+2144;12
+FAULT POINT: self.compute_rpcapi.terminate_instance(context, instance, bdms, delete_type='delete')

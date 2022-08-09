@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-RPC
+TARGET COMPONENT: /neutron/agent/securitygroups_rpc.py
+TARGET CLASS: SecurityGroupAgentRpc
+TARGET FUNCTION DEF: use_enhanced_rpc+86;8
+FAULT POINT: return self._use_enhanced_rpc

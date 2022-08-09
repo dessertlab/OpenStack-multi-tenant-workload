@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/compute/stats.py
+TARGET CLASS: Stats
+TARGET FUNCTION DEF: _extract_state_from_instance+140;8
+FAULT POINT: return (vm_state, task_state, os_type, project_id)

@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/network/os_vif_util.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: nova_to_osvif_instance+118;4
+FAULT POINT: return info

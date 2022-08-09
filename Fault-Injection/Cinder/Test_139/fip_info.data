@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-IMAGE
+TARGET COMPONENT: /cinder/volume/flows/api/create_volume.py
+TARGET CLASS: ExtractVolumeRequestTask
+TARGET FUNCTION DEF: _get_image_metadata+239;8
+FAULT POINT: return image_meta

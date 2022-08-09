@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /cinder/db/sqlalchemy/api.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: volume_attachment_get_all_by_volume_id+1888;4
+FAULT POINT: return result

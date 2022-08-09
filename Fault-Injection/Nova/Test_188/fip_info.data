@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-INSTANCE
+TARGET COMPONENT: /nova/scheduler/host_manager.py
+TARGET CLASS: HostManager
+TARGET FUNCTION DEF: sync_instance_info+821;16
+FAULT POINT: self._recreate_instance_info(context, host_name)

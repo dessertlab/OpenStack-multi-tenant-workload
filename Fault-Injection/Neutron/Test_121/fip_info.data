@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /neutron/quota/resource_registry.py
+TARGET CLASS: ResourceRegistry
+TARGET FUNCTION DEF: get_instance+152;8
+FAULT POINT: return cls._instance

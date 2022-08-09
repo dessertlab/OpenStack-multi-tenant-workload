@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /neutron/services/revisions/revision_plugin.py
+TARGET CLASS: RevisionPlugin
+TARGET FUNCTION DEF: _get_constrained_instance_match+153;12
+FAULT POINT: return (None, None)

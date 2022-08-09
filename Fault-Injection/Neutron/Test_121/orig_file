@@ -1,0 +1,145 @@
+
+from oslo_config import cfg
+from oslo_log import log
+import six
+from neutron._i18n import _
+from neutron.db import api as db_api
+from neutron.quota import resource
+LOG = log.getLogger(__name__)
+
+def register_resource(resource):
+    ResourceRegistry.get_instance().register_resource(resource)
+
+def register_resource_by_name(resource_name, plural_name=None):
+    ResourceRegistry.get_instance().register_resource_by_name(resource_name, plural_name)
+
+def get_all_resources():
+    return ResourceRegistry.get_instance().resources
+
+def unregister_all_resources():
+    if (not ResourceRegistry._instance):
+        return
+    return ResourceRegistry.get_instance().unregister_resources()
+
+def get_resource(resource_name):
+    return ResourceRegistry.get_instance().get_resource(resource_name)
+
+def is_tracked(resource_name):
+    return ResourceRegistry.get_instance().is_tracked(resource_name)
+
+def set_resources_dirty(context):
+    'Sets the dirty bit for resources with usage changes.\n\n    This routine scans all registered resources, and, for those whose\n    dirty status is True, sets the dirty bit to True in the database\n    for the appropriate tenants.\n\n    Please note that this routine begins a nested transaction, and it\n    is not recommended that this transaction begins within another\n    transaction. For this reason the function will raise a SqlAlchemy\n    exception if such an attempt is made.\n\n    :param context: a Neutron request context with a DB session\n    '
+    if (not cfg.CONF.QUOTAS.track_quota_usage):
+        return
+    for res in get_all_resources().values():
+        with db_api.context_manager.writer.using(context):
+            if (is_tracked(res.name) and res.dirty):
+                res.mark_dirty(context)
+
+def resync_resource(context, resource_name, tenant_id):
+    if (not cfg.CONF.QUOTAS.track_quota_usage):
+        return
+    if is_tracked(resource_name):
+        res = get_resource(resource_name)
+        res.resync(context, tenant_id)
+
+def mark_resources_dirty(f):
+    'Decorator for functions which alter resource usage.\n\n    This decorator ensures set_resource_dirty is invoked after completion\n    of the decorated function.\n    '
+
+    @six.wraps(f)
+    def wrapper(_self, context, *args, **kwargs):
+        ret_val = f(_self, context, *args, **kwargs)
+        set_resources_dirty(context)
+        return ret_val
+    return wrapper
+
+class tracked_resources(object, ):
+    'Decorator for specifying resources for which usage should be tracked.\n\n    A plugin class can use this decorator to specify for which resources\n    usage info should be tracked into an appropriate table rather than being\n    explicitly counted.\n    '
+
+    def __init__(self, override=False, **kwargs):
+        self._tracked_resources = kwargs
+        self._override = override
+
+    def __call__(self, f):
+
+        @six.wraps(f)
+        def wrapper(*args, **kwargs):
+            registry = ResourceRegistry.get_instance()
+            for resource_name in self._tracked_resources:
+                registry.set_tracked_resource(resource_name, self._tracked_resources[resource_name], self._override)
+            return f(*args, **kwargs)
+        return wrapper
+
+class ResourceRegistry(object, ):
+    'Registry for resource subject to quota limits.\n\n    This class keeps track of Neutron resources for which quota limits are\n    enforced, regardless of whether their usage is being tracked or counted.\n\n    For tracked-usage resources, that is to say those resources for which\n    there are usage counters which are kept in sync with the actual number\n    of rows in the database, this class allows the plugin to register their\n    names either explicitly or through the @tracked_resources decorator,\n    which should preferably be applied to the __init__ method of the class.\n    '
+    _instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if (cls._instance is None):
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self):
+        self._resources = {}
+        self._tracked_resource_mappings = {}
+
+    def __contains__(self, resource):
+        return (resource in self._resources)
+
+    def _create_resource_instance(self, resource_name, plural_name):
+        'Factory function for quota Resource.\n\n        This routine returns a resource instance of the appropriate type\n        according to system configuration.\n\n        If QUOTAS.track_quota_usage is True, and there is a model mapping for\n        the current resource, this function will return an instance of\n        AccountedResource; otherwise an instance of CountableResource.\n        '
+        if ((not cfg.CONF.QUOTAS.track_quota_usage) or (resource_name not in self._tracked_resource_mappings)):
+            LOG.info('Creating instance of CountableResource for resource:%s', resource_name)
+            return resource.CountableResource(resource_name, resource._count_resource, ('quota_%s' % resource_name))
+        else:
+            LOG.info('Creating instance of TrackedResource for resource:%s', resource_name)
+            return resource.TrackedResource(resource_name, self._tracked_resource_mappings[resource_name], ('quota_%s' % resource_name))
+
+    def set_tracked_resource(self, resource_name, model_class, override=False):
+        if (not cfg.CONF.QUOTAS.track_quota_usage):
+            return
+        if isinstance(self._resources.get(resource_name), resource.CountableResource):
+            raise RuntimeError((_('Resource %s is already registered as a countable resource.') % resource_name))
+        current_model_class = self._tracked_resource_mappings.setdefault(resource_name, model_class)
+        if (current_model_class != model_class):
+            LOG.debug('A model class is already defined for %(resource)s: %(current_model_class)s. Override:%(override)s', {'resource': resource_name, 'current_model_class': current_model_class, 'override': override})
+            if override:
+                self._tracked_resource_mappings[resource_name] = model_class
+        LOG.debug('Tracking information for resource: %s configured', resource_name)
+
+    def is_tracked(self, resource_name):
+        'Find out if a resource if tracked or not.\n\n        :param resource_name: name of the resource.\n        :returns: True if resource_name is registered and tracked, otherwise\n                 False. Please note that here when False it returned it\n                 simply means that resource_name is not a TrackedResource\n                 instance, it does not necessarily mean that the resource\n                 is not registered.\n        '
+        return (resource_name in self._tracked_resource_mappings)
+
+    def register_resource(self, resource):
+        if (resource.name in self._resources):
+            LOG.warning('%s is already registered', resource.name)
+        if (resource.name in self._tracked_resource_mappings):
+            resource.register_events()
+        self._resources[resource.name] = resource
+
+    def register_resources(self, resources):
+        for res in resources:
+            self.register_resource(res)
+
+    def register_resource_by_name(self, resource_name, plural_name=None):
+        'Register a resource by name.'
+        resource = self._create_resource_instance(resource_name, plural_name)
+        self.register_resource(resource)
+
+    def unregister_resources(self):
+        'Unregister all resources.'
+        for (res_name, res) in self._resources.items():
+            if (res_name in self._tracked_resource_mappings):
+                res.unregister_events()
+        self._resources.clear()
+        self._tracked_resource_mappings.clear()
+
+    def get_resource(self, resource_name):
+        'Return a resource given its name.\n\n        :returns: The resource instance or None if the resource is not found\n        '
+        return self._resources.get(resource_name)
+
+    @property
+    def resources(self):
+        return self._resources

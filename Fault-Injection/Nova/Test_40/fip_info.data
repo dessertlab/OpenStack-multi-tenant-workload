@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_THROW_EXCEPTION-INSTANCE
+TARGET COMPONENT: /nova/compute/resource_tracker.py
+TARGET CLASS: ResourceTracker
+TARGET FUNCTION DEF: instance_claim+217;8
+FAULT POINT: self._set_instance_host_and_node(instance, nodename)

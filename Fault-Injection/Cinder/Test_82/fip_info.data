@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-IMAGE
+TARGET COMPONENT: /cinder/image/image_utils.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: convert_image+201;8
+FAULT POINT: _convert_image(tuple(throttle_cmd['prefix']), source, dest, out_format, src_format=src_format, run_as_root=run_as_root)

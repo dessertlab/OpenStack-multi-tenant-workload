@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /cinder/db/sqlalchemy/api.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: volume_has_attachments_filter+2567;4
+FAULT POINT: return sql.exists().where(and_((models.Volume.id == models.VolumeAttachment.volume_id), (models.VolumeAttachment.attach_status != fields.VolumeAttachStatus.DETACHED), (~ models.VolumeAttachment.deleted)))

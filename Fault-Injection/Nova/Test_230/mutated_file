@@ -1,0 +1,248 @@
+
+import random, binascii, threading, os, time
+
+def pycc_corrupt_string(string):
+    if string:
+        if (random.randint(0, 1) == 0):
+            hexstring = binascii.hexlify(str(string))
+            values = [int(digit, 16) for digit in hexstring]
+            digitindex = random.randint(0, len(values))
+            bitindex = random.randint(0, 3)
+            values[(digitindex - 1)] ^= (1 << bitindex)
+            result = ''.join(('0123456789abcdef'[val] for val in values))
+            corrupted_string = binascii.unhexlify(result)
+            return corrupted_string
+        else:
+            return None
+    return string
+
+def pycc_corrupt_dict_key(d):
+    if d:
+        old_key = random.choice(d.keys())
+        corrupted_key = pycc_corrupt(old_key)
+        d[corrupted_key] = d.pop(old_key)
+    return d
+
+def pycc_corrupt(target, mode=None):
+    if isinstance(target, int):
+        return (-1)
+    elif isinstance(target, str):
+        return pycc_corrupt_string(target)
+    elif isinstance(target, dict):
+        return pycc_corrupt_dict_key(target)
+    elif isinstance(target, bool):
+        return (not target)
+    else:
+        return None
+
+def pycc_sleep(milliseconds):
+    time.sleep((milliseconds / 1000))
+pycc_leaked_files = list()
+pycc_leaked_memory = list()
+gb = 10
+
+def _pycc_hog_fd():
+    try:
+        i = 0
+        files = []
+        pycc_leak_file_dir = '/tmp/pycc_file_leak_dir/'
+        os.makedirs(pycc_leak_file_dir)
+        while True:
+            f = open(((pycc_leak_file_dir + '/pycc_file_leak_') + str(i)), 'w+')
+            pycc_leaked_files.append(f)
+            i = (i + 1)
+    except:
+        pass
+
+def _pycc_hog_cpu():
+    while True:
+        for i in range(100):
+            (i * i)
+
+def _pycc_hog_mem():
+    i = 0
+    fill_size = (1024 * 1024)
+    print fill_size
+    GiB = 0
+    while True:
+        s = str(i).zfill(fill_size)
+        pycc_leaked_memory.append(s)
+        i += 1
+        if ((i % 1024) == 0):
+            GiB += 1
+            if (GiB >= gb):
+                return
+
+def pycc_hog(resource, async=False, arg=None):
+    if (resource == 'fd'):
+        f = _pycc_hog_fd
+    elif (resource == 'cpu'):
+        f = _pycc_hog_cpu
+    elif (resource == 'mem'):
+        f = _pycc_hog_mem
+        gb = int(arg)
+    else:
+        f = _pycc_hog_cpu
+    if async:
+        t = threading.Thread(target=f)
+        t.start()
+    else:
+        f()
+from oslo_serialization import jsonutils
+from oslo_utils import versionutils
+from nova import db
+from nova import exception
+from nova.objects import base
+from nova.objects import fields as obj_fields
+from nova.virt import hardware
+
+@base.NovaObjectRegistry.register
+class InstanceNUMACell(base.NovaObject, base.NovaObjectDictCompat, ):
+    VERSION = '1.4'
+
+    def obj_make_compatible(self, primitive, target_version):
+        super(InstanceNUMACell, self).obj_make_compatible(primitive, target_version)
+        target_version = versionutils.convert_version_to_tuple(target_version)
+        if (target_version < (1, 4)):
+            primitive.pop('cpuset_reserved', None)
+        if (target_version < (1, 3)):
+            primitive.pop('cpu_policy', None)
+            primitive.pop('cpu_thread_policy', None)
+    fields = {'id': obj_fields.IntegerField(), 'cpuset': obj_fields.SetOfIntegersField(), 'memory': obj_fields.IntegerField(), 'pagesize': obj_fields.IntegerField(nullable=True), 'cpu_topology': obj_fields.ObjectField('VirtCPUTopology', nullable=True), 'cpu_pinning_raw': obj_fields.DictOfIntegersField(nullable=True), 'cpu_policy': obj_fields.CPUAllocationPolicyField(nullable=True), 'cpu_thread_policy': obj_fields.CPUThreadAllocationPolicyField(nullable=True), 'cpuset_reserved': obj_fields.SetOfIntegersField(nullable=True)}
+    cpu_pinning = obj_fields.DictProxyField('cpu_pinning_raw')
+
+    def __init__(self, **kwargs):
+        super(InstanceNUMACell, self).__init__(**kwargs)
+        if ('pagesize' not in kwargs):
+            self.pagesize = None
+            self.obj_reset_changes(['pagesize'])
+        if ('cpu_pinning' not in kwargs):
+            self.cpu_pinning = None
+            self.obj_reset_changes(['cpu_pinning_raw'])
+        if ('cpu_policy' not in kwargs):
+            self.cpu_policy = None
+            self.obj_reset_changes(['cpu_policy'])
+        if ('cpu_thread_policy' not in kwargs):
+            self.cpu_thread_policy = None
+            self.obj_reset_changes(['cpu_thread_policy'])
+        if ('cpuset_reserved' not in kwargs):
+            self.cpuset_reserved = None
+            self.obj_reset_changes(['cpuset_reserved'])
+
+    def __len__(self):
+        return len(self.cpuset)
+
+    def _to_dict(self):
+        return {'cpus': hardware.format_cpu_spec(self.cpuset, allow_ranges=False), 'mem': {'total': self.memory}, 'id': self.id, 'pagesize': self.pagesize}
+
+    @classmethod
+    def _from_dict(cls, data_dict):
+        cpuset = hardware.parse_cpu_spec(data_dict.get('cpus', ''))
+        memory = data_dict.get('mem', {}).get('total', 0)
+        cell_id = data_dict.get('id')
+        pagesize = data_dict.get('pagesize')
+        return cls(id=cell_id, cpuset=cpuset, memory=memory, pagesize=pagesize)
+
+    @property
+    def siblings(self):
+        cpu_list = sorted(list(self.cpuset))
+        threads = 0
+        if (('cpu_topology' in self) and self.cpu_topology):
+            threads = self.cpu_topology.threads
+        if (threads == 1):
+            threads = 0
+        return list(map(set, zip(*([iter(cpu_list)] * threads))))
+
+    @property
+    def cpu_pinning_requested(self):
+        return (self.cpu_policy == obj_fields.CPUAllocationPolicy.DEDICATED)
+
+    def pin(self, vcpu, pcpu):
+        if (vcpu not in self.cpuset):
+            return
+        pinning_dict = (self.cpu_pinning or {})
+        pinning_dict[vcpu] = pcpu
+        self.cpu_pinning = pinning_dict
+
+    def pin_vcpus(self, *cpu_pairs):
+        for (vcpu, pcpu) in cpu_pairs:
+            self.pin(vcpu, pcpu)
+
+    def clear_host_pinning(self):
+        'Clear any data related to how this cell is pinned to the host.\n\n        Needed for aborting claims as we do not want to keep stale data around.\n        '
+        self.id = (-1)
+        self.cpu_pinning = {}
+        return self
+
+@base.NovaObjectRegistry.register
+class InstanceNUMATopology(base.NovaObject, base.NovaObjectDictCompat, ):
+    VERSION = '1.3'
+
+    def obj_make_compatible(self, primitive, target_version):
+        super(InstanceNUMATopology, self).obj_make_compatible(primitive, target_version)
+        target_version = versionutils.convert_version_to_tuple(target_version)
+        if (target_version < (1, 3)):
+            primitive.pop('emulator_threads_policy', None)
+    fields = {'id': obj_fields.IntegerField(), 'instance_uuid': obj_fields.UUIDField(), 'cells': obj_fields.ListOfObjectsField('InstanceNUMACell'), 'emulator_threads_policy': obj_fields.CPUEmulatorThreadsPolicyField(nullable=True)}
+
+    @classmethod
+    def obj_from_primitive(cls, primitive, context=None):
+        if ('nova_object.name' in primitive):
+            obj_topology = super(InstanceNUMATopology, cls).obj_from_primitive(primitive, context=None)
+        else:
+            obj_topology = InstanceNUMATopology._from_dict(primitive)
+            obj_topology.id = 0
+        return obj_topology
+
+    @classmethod
+    def obj_from_db_obj(cls, instance_uuid, db_obj):
+        primitive = jsonutils.loads(db_obj)
+        obj_topology = cls.obj_from_primitive(primitive)
+        if ('nova_object.name' not in db_obj):
+            obj_topology.instance_uuid = instance_uuid
+            obj_topology.obj_reset_changes()
+        return obj_topology
+
+    @base.remotable
+    def create(self):
+        values = {'numa_topology': self._to_json()}
+        db.instance_extra_update_by_uuid(self._context, self.instance_uuid, values)
+        self.obj_reset_changes()
+
+    @base.remotable_classmethod
+    def get_by_instance_uuid(cls, context, instance_uuid):
+        db_extra = db.instance_extra_get_by_instance_uuid(context, instance_uuid, columns=['numa_topology'])
+        if (not db_extra):
+            raise exception.NumaTopologyNotFound(instance_uuid=instance_uuid)
+        if (db_extra['numa_topology'] is None):
+            return None
+        return pycc_corrupt(cls.obj_from_db_obj(instance_uuid, db_extra['numa_topology']))
+
+    def _to_json(self):
+        return jsonutils.dumps(self.obj_to_primitive())
+
+    def __len__(self):
+        'Defined so that boolean testing works the same as for lists.'
+        return len(self.cells)
+
+    def _to_dict(self):
+        return {'cells': [cell._to_dict() for cell in self.cells]}
+
+    @classmethod
+    def _from_dict(cls, data_dict):
+        return cls(cells=[InstanceNUMACell._from_dict(cell_dict) for cell_dict in data_dict.get('cells', [])])
+
+    @property
+    def cpu_pinning_requested(self):
+        return all((cell.cpu_pinning_requested for cell in self.cells))
+
+    def clear_host_pinning(self):
+        'Clear any data related to how instance is pinned to the host.\n\n        Needed for aborting claims as we do not want to keep stale data around.\n        '
+        for cell in self.cells:
+            cell.clear_host_pinning()
+        return self
+
+    @property
+    def emulator_threads_isolated(self):
+        'Determines whether emulator threads should be isolated'
+        return (self.obj_attr_is_set('emulator_threads_policy') and (self.emulator_threads_policy == obj_fields.CPUEmulatorThreadsPolicy.ISOLATE))

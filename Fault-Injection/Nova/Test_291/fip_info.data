@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /nova/utils.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: get_image_metadata_from_volume+1152;4
+FAULT POINT: return image_meta
