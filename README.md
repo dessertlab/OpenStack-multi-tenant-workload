@@ -1,7 +1,8 @@
 # OpenStack-multi-tenant-workload
 
 
-This repository contains the logs collected during the execution of the OpenStack cloud computing platform with a multi-tenant workload. 
+This repository contains the logs collected during the execution of the OpenStack cloud computing platform with a multi-tenant workload. We targeted OpenStack version 3.12.1 (release \emph{Pike}), deployed on Intel Xeon servers (E5-2630L v3 @ 1.80GHz) with 16 GB RAM, 150 GB of disk storage, and Linux CentOS v7.0, connected through a Gigabit Ethernet LAN. 
+
 
 The workload simulates 10 different tenants performing concurrent operations on the cloud infrastructure.
 The tenants exhibit 6 different profiles, as described in the following:
