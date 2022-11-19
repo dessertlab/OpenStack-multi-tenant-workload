@@ -1,4 +1,4 @@
-# OpenStack-multi-tenant-workload
+# Dataset, Multi-tenant Workload and Monitoring Rules for OpenStack cloud computing platform
 
 
 This repository contains the logs collected during the execution of the OpenStack cloud computing platform with a multi-tenant workload. We targeted OpenStack version 3.12.1 (release Pike), deployed on Intel Xeon servers (E5-2630L v3 @ 1.80GHz) with 16 GB RAM, 150 GB of disk storage, and Linux CentOS v7.0, connected through a Gigabit Ethernet LAN. 
@@ -27,9 +27,9 @@ These six profiles are run concurrently to generate a multi-tenant workload. The
 
 The execution of the workload lasts ~40 minutes and produces a large amount of data. On average, during every system execution, we collected 69 different event types (59 RPC and 10 REST API), and ~2,700 different events ~2,100 RPC events, while the remaining are related to the REST API calls). For every execution trace, the bodies of all RPC events contain in total more than ~155,000 fields (on average, 74 body fields per event).
 
-## Raw Data
+## Dataset
 
-The folder "`Raw Data`" contains all the execution traces collected on OpenStack during our experiments, including both fault-injected and fault-free executions.
+The folder "`Dataset`" contains all the execution traces collected on OpenStack during our experiments, including both fault-injected and fault-free executions.
 
 ### Fault-Injection
 
