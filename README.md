@@ -1,7 +1,7 @@
 # OpenStack-multi-tenant-workload
 
 
-This repository contains the logs collected during the execution of the OpenStack cloud computing platform with a multi-tenant workload. We targeted OpenStack version 3.12.1 (release \emph{Pike}), deployed on Intel Xeon servers (E5-2630L v3 @ 1.80GHz) with 16 GB RAM, 150 GB of disk storage, and Linux CentOS v7.0, connected through a Gigabit Ethernet LAN. 
+This repository contains the logs collected during the execution of the OpenStack cloud computing platform with a multi-tenant workload. We targeted OpenStack version 3.12.1 (release Pike), deployed on Intel Xeon servers (E5-2630L v3 @ 1.80GHz) with 16 GB RAM, 150 GB of disk storage, and Linux CentOS v7.0, connected through a Gigabit Ethernet LAN. 
 
 
 The workload simulates 10 different tenants performing concurrent operations on the cloud infrastructure.
@@ -27,9 +27,13 @@ These six profiles are run concurrently to generate a multi-tenant workload. The
 
 The execution of the workload lasts ~40 minutes and produces a large amount of data. On average, during every system execution, we collected 69 different event types (59 RPC and 10 REST API), and ~2,700 different events ~2,100 RPC events, while the remaining are related to the REST API calls). For every execution trace, the bodies of all RPC events contain in total more than ~155,000 fields (on average, 74 body fields per event).
 
-## Fault-Injection
+## Raw Data
 
-The folder "`Fault-Injection`" includes the raw logs from fault injection experiments in OpenStack. The tests are grouped per injected sub-system (i.e., Nova, Cinder, and Neutron). 
+The folder "`Raw Data`" contains all the execution traces collected on OpenStack during our experiments, including both fault-injected and fault-free executions.
+
+### Fault-Injection
+
+The subfolder "`Fault-Injection`" includes the raw logs from fault injection experiments in OpenStack. The tests are grouped per injected sub-system (i.e., Nova, Cinder, and Neutron). 
 
 There is a total of 637 tests: 292 for Nova, 224 for Cinder, and 121 for Neutron. The logs of each experiment are saved in a folder named "`Test_id`", where "`id`" is an incremental number that identifies the test. 
 
@@ -55,6 +59,18 @@ where <tenant_id> is a number between 0 and 9 representing one of the 10 differe
 Each subfolder "`Test_<id>/logs/round_number`" contains also the file "`trace_Test_<id>.log`". This file is a JSON file containing all the messages exchanged in OpenStack during the execution of the workload. These messages are collected with the distributed tracing system [Zipkin](https://zipkin.io/).
 
 
-## Fault-Free
+### Fault-Free
 
-The folder "`Fault-Free`" includes the raw logs from 50 correct execution of the OpenStack cloud computing systems, i.e., when no fault is injected into the system.
+The subfolder "`Fault-Free`" includes the raw logs from 50 correct execution of the OpenStack cloud computing systems, i.e., when no fault is injected into the system.
+
+## Workload
+
+The folder "`Workload`" contains the script to execute the multi-tenant workload on OpenStack version 3.12.1 (release Pike).
+The file "`openstack_pike_workload_start_MULTI-TENANT.sh`" is the script that executes all the different tenants on the system.
+
+## Monitoring Rules
+
+The folder "`Monitoring Rules`" contains all the Python code used to infer the monitoring rules from the fault-free executions.
+We are grateful to our former students, Nicola Apa and Roberto Scarpati, for their help in this work.
+
+
