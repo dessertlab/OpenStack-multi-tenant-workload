@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /cinder/db/api.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: volume_get_all+267;4
+FAULT POINT: return IMPL.volume_get_all(context, marker, limit, sort_keys=sort_keys, sort_dirs=sort_dirs, filters=filters, offset=offset)

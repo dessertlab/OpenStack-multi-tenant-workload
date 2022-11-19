@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /nova/virt/libvirt/driver.py
+TARGET CLASS: LibvirtDriver
+TARGET FUNCTION DEF: _is_booted_from_volume+3191;8
+FAULT POINT: return bool(block_device.get_root_bdm(block_device_mapping))

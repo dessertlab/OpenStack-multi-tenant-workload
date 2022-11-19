@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/notifications/base.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: info_from_instance+497;4
+FAULT POINT: return instance_info

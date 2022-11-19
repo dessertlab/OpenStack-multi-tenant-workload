@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/objects/instance_mapping.py
+TARGET CLASS: InstanceMappingList
+TARGET FUNCTION DEF: get_by_instance_uuids+185;8
+FAULT POINT: return base.obj_make_list(context, cls(), objects.InstanceMapping, db_mappings)

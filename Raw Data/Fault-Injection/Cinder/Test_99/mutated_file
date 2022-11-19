@@ -1,0 +1,164 @@
+
+import random, binascii, threading, os, time
+
+def pycc_corrupt_string(string):
+    if string:
+        if (random.randint(0, 1) == 0):
+            hexstring = binascii.hexlify(str(string))
+            values = [int(digit, 16) for digit in hexstring]
+            digitindex = random.randint(0, len(values))
+            bitindex = random.randint(0, 3)
+            values[(digitindex - 1)] ^= (1 << bitindex)
+            result = ''.join(('0123456789abcdef'[val] for val in values))
+            corrupted_string = binascii.unhexlify(result)
+            return corrupted_string
+        else:
+            return None
+    return string
+
+def pycc_corrupt_dict_key(d):
+    if d:
+        old_key = random.choice(d.keys())
+        corrupted_key = pycc_corrupt(old_key)
+        d[corrupted_key] = d.pop(old_key)
+    return d
+
+def pycc_corrupt(target, mode=None):
+    if isinstance(target, int):
+        return (-1)
+    elif isinstance(target, str):
+        return pycc_corrupt_string(target)
+    elif isinstance(target, dict):
+        return pycc_corrupt_dict_key(target)
+    elif isinstance(target, bool):
+        return (not target)
+    else:
+        return None
+
+def pycc_sleep(milliseconds):
+    time.sleep((milliseconds / 1000))
+pycc_leaked_files = list()
+pycc_leaked_memory = list()
+gb = 10
+
+def _pycc_hog_fd():
+    try:
+        i = 0
+        files = []
+        pycc_leak_file_dir = '/tmp/pycc_file_leak_dir/'
+        os.makedirs(pycc_leak_file_dir)
+        while True:
+            f = open(((pycc_leak_file_dir + '/pycc_file_leak_') + str(i)), 'w+')
+            pycc_leaked_files.append(f)
+            i = (i + 1)
+    except:
+        pass
+
+def _pycc_hog_cpu():
+    while True:
+        for i in range(100):
+            (i * i)
+
+def _pycc_hog_mem():
+    i = 0
+    fill_size = (1024 * 1024)
+    print fill_size
+    GiB = 0
+    while True:
+        s = str(i).zfill(fill_size)
+        pycc_leaked_memory.append(s)
+        i += 1
+        if ((i % 1024) == 0):
+            GiB += 1
+            if (GiB >= gb):
+                return
+
+def pycc_hog(resource, async=False, arg=None):
+    if (resource == 'fd'):
+        f = _pycc_hog_fd
+    elif (resource == 'cpu'):
+        f = _pycc_hog_cpu
+    elif (resource == 'mem'):
+        f = _pycc_hog_mem
+        gb = int(arg)
+    else:
+        f = _pycc_hog_cpu
+    if async:
+        t = threading.Thread(target=f)
+        t.start()
+    else:
+        f()
+from oslo_log import log as logging
+from oslo_utils import excutils
+import taskflow.engines
+from taskflow.patterns import linear_flow
+from cinder import exception
+from cinder import flow_utils
+from cinder.message import api as message_api
+from cinder.message import message_field
+from cinder import rpc
+from cinder import utils
+from cinder.volume.flows import common
+LOG = logging.getLogger(__name__)
+ACTION = 'volume:create'
+
+class ExtractSchedulerSpecTask(flow_utils.CinderTask, ):
+    'Extracts a spec object from a partial and/or incomplete request spec.\n\n    Reversion strategy: N/A\n    '
+    default_provides = set(['request_spec'])
+
+    def __init__(self, **kwargs):
+        super(ExtractSchedulerSpecTask, self).__init__(addons=[ACTION], **kwargs)
+
+    def _populate_request_spec(self, volume, snapshot_id, image_id):
+        volume_type_id = volume.volume_type_id
+        vol_type = volume.volume_type
+        return {'volume_id': volume.id, 'snapshot_id': snapshot_id, 'image_id': image_id, 'volume_properties': {'size': utils.as_int(volume.size, quiet=False), 'availability_zone': volume.availability_zone, 'volume_type_id': volume_type_id}, 'volume_type': list(dict(vol_type).items())}
+
+    def execute(self, context, request_spec, volume, snapshot_id, image_id):
+        if (request_spec is None):
+            request_spec = self._populate_request_spec(volume.id, snapshot_id, image_id)
+        return {'request_spec': request_spec}
+
+class ScheduleCreateVolumeTask(flow_utils.CinderTask, ):
+    'Activates a scheduler driver and handles any subsequent failures.\n\n    Notification strategy: on failure the scheduler rpc notifier will be\n    activated and a notification will be emitted indicating what errored,\n    the reason, and the request (and misc. other data) that caused the error\n    to be triggered.\n\n    Reversion strategy: N/A\n    '
+    FAILURE_TOPIC = 'scheduler.create_volume'
+
+    def __init__(self, driver_api, **kwargs):
+        super(ScheduleCreateVolumeTask, self).__init__(addons=[ACTION], **kwargs)
+        self.driver_api = driver_api
+        self.message_api = message_api.API()
+
+    def _handle_failure(self, context, request_spec, cause):
+        try:
+            self._notify_failure(context, request_spec, cause)
+        finally:
+            LOG.error('Failed to run task %(name)s: %(cause)s', {'cause': cause, 'name': self.name})
+
+    @utils.if_notifications_enabled
+    def _notify_failure(self, context, request_spec, cause):
+        'When scheduling fails send out an event that it failed.'
+        payload = {'request_spec': request_spec, 'volume_properties': request_spec.get('volume_properties', {}), 'volume_id': request_spec['volume_id'], 'state': 'error', 'method': 'create_volume', 'reason': cause}
+        try:
+            rpc.get_notifier('scheduler').error(context, self.FAILURE_TOPIC, payload)
+        except exception.CinderException:
+            LOG.exception('Failed notifying on %(topic)s payload %(payload)s', {'topic': self.FAILURE_TOPIC, 'payload': payload})
+
+    def execute(self, context, request_spec, filter_properties, volume):
+        try:
+            self.driver_api.schedule_create_volume(pycc_corrupt(context), request_spec, filter_properties)
+        except Exception as e:
+            self.message_api.create(context, message_field.Action.SCHEDULE_ALLOCATE_VOLUME, resource_uuid=request_spec['volume_id'], exception=e)
+            with excutils.save_and_reraise_exception(reraise=(not isinstance(e, exception.NoValidBackend))):
+                try:
+                    self._handle_failure(context, request_spec, e)
+                finally:
+                    common.error_out(volume, reason=e)
+
+def get_flow(context, driver_api, request_spec=None, filter_properties=None, volume=None, snapshot_id=None, image_id=None):
+    'Constructs and returns the scheduler entrypoint flow.\n\n    This flow will do the following:\n\n    1. Inject keys & values for dependent tasks.\n    2. Extract a scheduler specification from the provided inputs.\n    3. Use provided scheduler driver to select host and pass volume creation\n       request further.\n    '
+    create_what = {'context': context, 'raw_request_spec': request_spec, 'filter_properties': filter_properties, 'volume': volume, 'snapshot_id': snapshot_id, 'image_id': image_id}
+    flow_name = (ACTION.replace(':', '_') + '_scheduler')
+    scheduler_flow = linear_flow.Flow(flow_name)
+    scheduler_flow.add(ExtractSchedulerSpecTask(rebind={'request_spec': 'raw_request_spec'}))
+    scheduler_flow.add(ScheduleCreateVolumeTask(driver_api))
+    return taskflow.engines.load(scheduler_flow, store=create_what)

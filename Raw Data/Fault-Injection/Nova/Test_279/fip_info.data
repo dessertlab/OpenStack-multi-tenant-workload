@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/db/api.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: virtual_interface_get_by_instance+703;4
+FAULT POINT: return IMPL.virtual_interface_get_by_instance(context, instance_id)

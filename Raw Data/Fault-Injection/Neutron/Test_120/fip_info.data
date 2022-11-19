@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /neutron/manager.py
+TARGET CLASS: NeutronManager
+TARGET FUNCTION DEF: has_instance+237;8
+FAULT POINT: return (cls._instance is not None)

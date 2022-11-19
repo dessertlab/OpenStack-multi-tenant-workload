@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/network/os_vif_util.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: _get_vif_instance+257;4
+FAULT POINT: return cls(id=vif['id'], address=vif['address'], network=_nova_to_osvif_network(vif['network']), has_traffic_filtering=vif.is_neutron_filtering_enabled(), preserve_on_delete=vif['preserve_on_delete'], active=vif['active'], **kwargs)

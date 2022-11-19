@@ -1,0 +1,159 @@
+
+import random, binascii, threading, os, time
+
+def pycc_corrupt_string(string):
+    if string:
+        if (random.randint(0, 1) == 0):
+            hexstring = binascii.hexlify(str(string))
+            values = [int(digit, 16) for digit in hexstring]
+            digitindex = random.randint(0, len(values))
+            bitindex = random.randint(0, 3)
+            values[(digitindex - 1)] ^= (1 << bitindex)
+            result = ''.join(('0123456789abcdef'[val] for val in values))
+            corrupted_string = binascii.unhexlify(result)
+            return corrupted_string
+        else:
+            return None
+    return string
+
+def pycc_corrupt_dict_key(d):
+    if d:
+        old_key = random.choice(d.keys())
+        corrupted_key = pycc_corrupt(old_key)
+        d[corrupted_key] = d.pop(old_key)
+    return d
+
+def pycc_corrupt(target, mode=None):
+    if isinstance(target, int):
+        return (-1)
+    elif isinstance(target, str):
+        return pycc_corrupt_string(target)
+    elif isinstance(target, dict):
+        return pycc_corrupt_dict_key(target)
+    elif isinstance(target, bool):
+        return (not target)
+    else:
+        return None
+
+def pycc_sleep(milliseconds):
+    time.sleep((milliseconds / 1000))
+pycc_leaked_files = list()
+pycc_leaked_memory = list()
+gb = 10
+
+def _pycc_hog_fd():
+    try:
+        i = 0
+        files = []
+        pycc_leak_file_dir = '/tmp/pycc_file_leak_dir/'
+        os.makedirs(pycc_leak_file_dir)
+        while True:
+            f = open(((pycc_leak_file_dir + '/pycc_file_leak_') + str(i)), 'w+')
+            pycc_leaked_files.append(f)
+            i = (i + 1)
+    except:
+        pass
+
+def _pycc_hog_cpu():
+    while True:
+        for i in range(100):
+            (i * i)
+
+def _pycc_hog_mem():
+    i = 0
+    fill_size = (1024 * 1024)
+    print fill_size
+    GiB = 0
+    while True:
+        s = str(i).zfill(fill_size)
+        pycc_leaked_memory.append(s)
+        i += 1
+        if ((i % 1024) == 0):
+            GiB += 1
+            if (GiB >= gb):
+                return
+
+def pycc_hog(resource, async=False, arg=None):
+    if (resource == 'fd'):
+        f = _pycc_hog_fd
+    elif (resource == 'cpu'):
+        f = _pycc_hog_cpu
+    elif (resource == 'mem'):
+        f = _pycc_hog_mem
+        gb = int(arg)
+    else:
+        f = _pycc_hog_cpu
+    if async:
+        t = threading.Thread(target=f)
+        t.start()
+    else:
+        f()
+'The volume type & volume types extra specs extension.'
+from oslo_utils import strutils
+from webob import exc
+from cinder.api import common
+from cinder.api.openstack import wsgi
+from cinder.api.v2.views import types as views_types
+from cinder import exception
+from cinder.i18n import _
+from cinder import utils
+from cinder.volume import volume_types
+
+class VolumeTypesController(wsgi.Controller, ):
+    'The volume types API controller for the OpenStack API.'
+    _view_builder_class = views_types.ViewBuilder
+
+    def index(self, req):
+        'Returns the list of volume types.'
+        limited_types = self._get_volume_types(req)
+        req.cache_resource(limited_types, name='types')
+        return self._view_builder.index(req, limited_types)
+
+    def show(self, req, id):
+        'Return a single volume type item.'
+        context = req.environ['cinder.context']
+        if ((id is not None) and (id == 'default')):
+            vol_type = volume_types.get_default_volume_type()
+            if (not vol_type):
+                msg = _('Default volume type can not be found.')
+                raise exception.VolumeTypeNotFound(message=msg)
+            req.cache_resource(vol_type, name='types')
+        else:
+            vol_type = volume_types.get_volume_type(context, id)
+            req.cache_resource(vol_type, name='types')
+        return self._view_builder.show(req, vol_type)
+
+    def _parse_is_public(self, is_public):
+        'Parse is_public into something usable.\n\n        * True: List public volume types only\n        * False: List private volume types only\n        * None: List both public and private volume types\n        '
+        if (is_public is None):
+            return True
+        elif utils.is_none_string(is_public):
+            return None
+        else:
+            try:
+                return strutils.bool_from_string(is_public, strict=True)
+            except ValueError:
+                msg = (_('Invalid is_public filter [%s]') % is_public)
+                raise exc.HTTPBadRequest(explanation=msg)
+
+    def _get_volume_types(self, req):
+        'Helper function that returns a list of type dicts.'
+        params = req.params.copy()
+        (marker, limit, offset) = common.get_pagination_params(params)
+        (sort_keys, sort_dirs) = common.get_sort_params(params)
+        filters = {}
+        context = req.environ['cinder.context']
+        if context.is_admin:
+            filters['is_public'] = self._parse_is_public(req.params.get('is_public', None))
+        else:
+            filters['is_public'] = True
+        utils.remove_invalid_filter_options(context, filters, self._get_vol_type_filter_options())
+        limited_types = volume_types.get_all_types(context, filters=filters, marker=marker, limit=limit, sort_keys=sort_keys, sort_dirs=sort_dirs, offset=offset, list_result=True)
+        return pycc_corrupt(limited_types)
+
+    def _get_vol_type_filter_options(self):
+        'Return volume type search options allowed by non-admin.'
+        return ['is_public']
+
+def create_resource():
+    return wsgi.Resource(VolumeTypesController())

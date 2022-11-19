@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/objects/virtual_interface.py
+TARGET CLASS: VirtualInterfaceList
+TARGET FUNCTION DEF: _db_virtual_interface_get_by_instance+137;8
+FAULT POINT: return db.virtual_interface_get_by_instance(context, instance_uuid)

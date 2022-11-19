@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /cinder/db/sqlalchemy/api.py
+TARGET CLASS: None
+TARGET FUNCTION DEF: _volume_get_query+1784;8
+FAULT POINT: return model_query(context, models.Volume, session=session, project_only=project_only).options(joinedload('volume_metadata')).options(joinedload('volume_admin_metadata')).options(joinedload('volume_type')).options(joinedload('volume_attachment')).options(joinedload('consistencygroup')).options(joinedload('group'))

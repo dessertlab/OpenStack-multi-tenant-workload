@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_THROW_EXCEPTION-INSTANCE
+TARGET COMPONENT: /nova/compute/resource_tracker.py
+TARGET CLASS: ResourceTracker
+TARGET FUNCTION DEF: _update_usage_from_instance+1090;8
+FAULT POINT: stats.update_stats_for_instance(instance, is_removed_instance)

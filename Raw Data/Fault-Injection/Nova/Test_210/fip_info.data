@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/scheduler/host_manager.py
+TARGET CLASS: HostManager
+TARGET FUNCTION DEF: _get_instance_info+750;8
+FAULT POINT: return inst_dict

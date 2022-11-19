@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /neutron/agent/metadata/agent.py
+TARGET CLASS: MetadataProxyHandler
+TARGET FUNCTION DEF: _get_instance_and_tenant_id+164;12
+FAULT POINT: return (ports[0]['device_id'], ports[0]['tenant_id'])

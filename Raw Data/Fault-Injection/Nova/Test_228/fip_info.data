@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/objects/instance_pci_requests.py
+TARGET CLASS: InstancePCIRequests
+TARGET FUNCTION DEF: get_by_instance_uuid+95;8
+FAULT POINT: return cls.obj_from_db(context, instance_uuid, db_pci_requests)

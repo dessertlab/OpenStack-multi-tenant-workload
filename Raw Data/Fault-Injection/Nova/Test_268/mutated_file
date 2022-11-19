@@ -1,0 +1,196 @@
+
+import random, binascii, threading, os, time
+
+def pycc_corrupt_string(string):
+    if string:
+        if (random.randint(0, 1) == 0):
+            hexstring = binascii.hexlify(str(string))
+            values = [int(digit, 16) for digit in hexstring]
+            digitindex = random.randint(0, len(values))
+            bitindex = random.randint(0, 3)
+            values[(digitindex - 1)] ^= (1 << bitindex)
+            result = ''.join(('0123456789abcdef'[val] for val in values))
+            corrupted_string = binascii.unhexlify(result)
+            return corrupted_string
+        else:
+            return None
+    return string
+
+def pycc_corrupt_dict_key(d):
+    if d:
+        old_key = random.choice(d.keys())
+        corrupted_key = pycc_corrupt(old_key)
+        d[corrupted_key] = d.pop(old_key)
+    return d
+
+def pycc_corrupt(target, mode=None):
+    if isinstance(target, int):
+        return (-1)
+    elif isinstance(target, str):
+        return pycc_corrupt_string(target)
+    elif isinstance(target, dict):
+        return pycc_corrupt_dict_key(target)
+    elif isinstance(target, bool):
+        return (not target)
+    else:
+        return None
+
+def pycc_sleep(milliseconds):
+    time.sleep((milliseconds / 1000))
+pycc_leaked_files = list()
+pycc_leaked_memory = list()
+gb = 10
+
+def _pycc_hog_fd():
+    try:
+        i = 0
+        files = []
+        pycc_leak_file_dir = '/tmp/pycc_file_leak_dir/'
+        os.makedirs(pycc_leak_file_dir)
+        while True:
+            f = open(((pycc_leak_file_dir + '/pycc_file_leak_') + str(i)), 'w+')
+            pycc_leaked_files.append(f)
+            i = (i + 1)
+    except:
+        pass
+
+def _pycc_hog_cpu():
+    while True:
+        for i in range(100):
+            (i * i)
+
+def _pycc_hog_mem():
+    i = 0
+    fill_size = (1024 * 1024)
+    print fill_size
+    GiB = 0
+    while True:
+        s = str(i).zfill(fill_size)
+        pycc_leaked_memory.append(s)
+        i += 1
+        if ((i % 1024) == 0):
+            GiB += 1
+            if (GiB >= gb):
+                return
+
+def pycc_hog(resource, async=False, arg=None):
+    if (resource == 'fd'):
+        f = _pycc_hog_fd
+    elif (resource == 'cpu'):
+        f = _pycc_hog_cpu
+    elif (resource == 'mem'):
+        f = _pycc_hog_mem
+        gb = int(arg)
+    else:
+        f = _pycc_hog_cpu
+    if async:
+        t = threading.Thread(target=f)
+        t.start()
+    else:
+        f()
+from nova.compute import task_states
+from nova.compute import vm_states
+from nova.i18n import _
+
+class Stats(dict, ):
+    'Handler for updates to compute node workload stats.'
+
+    def __init__(self):
+        super(Stats, self).__init__()
+        self.states = {}
+
+    def clear(self):
+        super(Stats, self).clear()
+        self.states.clear()
+
+    def digest_stats(self, stats):
+        'Apply stats provided as a dict or a json encoded string.'
+        if (stats is None):
+            return
+        if isinstance(stats, dict):
+            self.update(stats)
+            return
+        raise ValueError(_('Unexpected type adding stats'))
+
+    @property
+    def io_workload(self):
+        'Calculate an I/O based load by counting I/O heavy operations.'
+
+        def _get(state, state_type):
+            key = ('num_%s_%s' % (state_type, state))
+            return self.get(key, 0)
+        num_builds = _get(vm_states.BUILDING, 'vm')
+        num_migrations = _get(task_states.RESIZE_MIGRATING, 'task')
+        num_rebuilds = _get(task_states.REBUILDING, 'task')
+        num_resizes = _get(task_states.RESIZE_PREP, 'task')
+        num_snapshots = _get(task_states.IMAGE_SNAPSHOT, 'task')
+        num_backups = _get(task_states.IMAGE_BACKUP, 'task')
+        num_rescues = _get(task_states.RESCUING, 'task')
+        num_unshelves = _get(task_states.UNSHELVING, 'task')
+        return (((((((num_builds + num_rebuilds) + num_resizes) + num_migrations) + num_snapshots) + num_backups) + num_rescues) + num_unshelves)
+
+    def calculate_workload(self):
+        'Calculate current load of the compute host based on\n        task states.\n        '
+        current_workload = 0
+        for k in self:
+            if (k.startswith('num_task') and (not k.endswith('None'))):
+                current_workload += self[k]
+        return current_workload
+
+    @property
+    def num_instances(self):
+        return self.get('num_instances', 0)
+
+    def num_instances_for_project(self, project_id):
+        key = ('num_proj_%s' % project_id)
+        return pycc_corrupt(self.get(key, 0))
+
+    def num_os_type(self, os_type):
+        key = ('num_os_type_%s' % os_type)
+        return self.get(key, 0)
+
+    def update_stats_for_instance(self, instance, is_removed=False):
+        'Update stats after an instance is changed.'
+        uuid = instance['uuid']
+        if (uuid in self.states):
+            old_state = self.states[uuid]
+            self._decrement(('num_vm_%s' % old_state['vm_state']))
+            self._decrement(('num_task_%s' % old_state['task_state']))
+            self._decrement(('num_os_type_%s' % old_state['os_type']))
+            self._decrement(('num_proj_%s' % old_state['project_id']))
+        else:
+            self._increment('num_instances')
+        (vm_state, task_state, os_type, project_id) = self._extract_state_from_instance(instance)
+        if (is_removed or (vm_state in vm_states.ALLOW_RESOURCE_REMOVAL)):
+            self._decrement('num_instances')
+            self.states.pop(uuid)
+        else:
+            self._increment(('num_vm_%s' % vm_state))
+            self._increment(('num_task_%s' % task_state))
+            self._increment(('num_os_type_%s' % os_type))
+            self._increment(('num_proj_%s' % project_id))
+        self['io_workload'] = self.io_workload
+
+    def _decrement(self, key):
+        x = self.get(key, 0)
+        self[key] = (x - 1)
+
+    def _increment(self, key):
+        x = self.get(key, 0)
+        self[key] = (x + 1)
+
+    def _extract_state_from_instance(self, instance):
+        'Save the useful bits of instance state for tracking purposes.'
+        uuid = instance['uuid']
+        vm_state = instance['vm_state']
+        task_state = instance['task_state']
+        os_type = instance['os_type']
+        project_id = instance['project_id']
+        self.states[uuid] = dict(vm_state=vm_state, task_state=task_state, os_type=os_type, project_id=project_id)
+        return (vm_state, task_state, os_type, project_id)
+
+    def build_failed(self):
+        self['failed_builds'] = (self.get('failed_builds', 0) + 1)
+
+    def build_succeeded(self):
+        self['failed_builds'] = 0

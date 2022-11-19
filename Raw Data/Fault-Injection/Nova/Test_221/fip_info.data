@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
+TARGET COMPONENT: /nova/objects/vcpu_model.py
+TARGET CLASS: VirtCPUModel
+TARGET FUNCTION DEF: get_by_instance_uuid+53;8
+FAULT POINT: return cls.obj_from_primitive(jsonutils.loads(db_extra['vcpu_model']))

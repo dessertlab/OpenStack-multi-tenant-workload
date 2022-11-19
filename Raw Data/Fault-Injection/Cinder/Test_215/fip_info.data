@@ -1,0 +1,5 @@
+FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
+TARGET COMPONENT: /cinder/api/v3/volumes.py
+TARGET CLASS: VolumeController
+TARGET FUNCTION DEF: _get_volumes+141;8
+FAULT POINT: return volumes
