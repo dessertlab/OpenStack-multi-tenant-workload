@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-IMAGE
-TARGET COMPONENT: /nova/virt/libvirt/driver.py
-TARGET CLASS: LibvirtDriver
-TARGET FUNCTION DEF: None+3418;12
-FAULT POINT: self._try_fetch_image_cache(backend, fetch_func, context, root_fname, disk_images['image_id'], instance, size, fallback_from_host)

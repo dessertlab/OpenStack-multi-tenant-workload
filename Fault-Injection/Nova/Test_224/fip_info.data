@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/objects/instance_mapping.py
-TARGET CLASS: InstanceMappingList
-TARGET FUNCTION DEF: _get_by_instance_uuids_from_db+177;8
-FAULT POINT: return context.session.query(api_models.InstanceMapping).options(joinedload('cell_mapping')).filter(api_models.InstanceMapping.instance_uuid.in_(uuids)).all()

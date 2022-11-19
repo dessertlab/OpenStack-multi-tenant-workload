@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-INSTANCE
-TARGET COMPONENT: /nova/network/base_api.py
-TARGET CLASS: NetworkAPI
-TARGET FUNCTION DEF: get_instance_nw_info+261;12
-FAULT POINT: update_instance_cache_with_nw_info(self, context, instance, nw_info=result, update_cells=update_cells)

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-INSTANCE
-TARGET COMPONENT: /nova/api/openstack/compute/server_external_events.py
-TARGET CLASS: ServerExternalEventsController
-TARGET FUNCTION DEF: create+144;12
-FAULT POINT: self.compute_api.external_instance_event(context, accepted_instances, accepted_events)

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-NETWORK
-TARGET COMPONENT: /neutron/db/agentschedulers_db.py
-TARGET CLASS: DhcpAgentSchedulerDbMixin
-TARGET FUNCTION DEF: get_dhcp_agents_hosting_networks+397;8
-FAULT POINT: return [binding.dhcp_agent for binding in query if self.is_eligible_agent(context, active, binding.dhcp_agent)]

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/scheduler/rpcapi.py
-TARGET CLASS: SchedulerAPI
-TARGET FUNCTION DEF: delete_instance_info+156;8
-FAULT POINT: return cctxt.cast(ctxt, 'delete_instance_info', host_name=host_name, instance_uuid=instance_uuid)

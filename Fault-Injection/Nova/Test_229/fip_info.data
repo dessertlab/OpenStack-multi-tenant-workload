@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/objects/block_device.py
-TARGET CLASS: BlockDeviceMappingList
-TARGET FUNCTION DEF: _db_block_device_mapping_get_all_by_instance_uuids+341;8
-FAULT POINT: return db.block_device_mapping_get_all_by_instance_uuids(context, instance_uuids)

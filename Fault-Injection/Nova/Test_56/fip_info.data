@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-INSTANCE
-TARGET COMPONENT: /nova/compute/api.py
-TARGET CLASS: API
-TARGET FUNCTION DEF: delete+2191;8
-FAULT POINT: self._delete_instance(context, instance)

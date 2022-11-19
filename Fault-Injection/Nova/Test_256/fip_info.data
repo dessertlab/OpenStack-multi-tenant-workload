@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/network/neutronv2/api.py
-TARGET CLASS: API
-TARGET FUNCTION DEF: _create_ports_for_instance+812;8
-FAULT POINT: return requests_and_created_ports

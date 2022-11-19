@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/api/openstack/compute/server_external_events.py
-TARGET CLASS: ServerExternalEventsController
-TARGET FUNCTION DEF: _get_instances_all_cells+64;8
-FAULT POINT: return instances

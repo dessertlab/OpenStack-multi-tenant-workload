@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-VOLUME
-TARGET COMPONENT: /nova/compute/manager.py
-TARGET CLASS: ComputeManager
-TARGET FUNCTION DEF: None+4917;8
-FAULT POINT: do_attach_volume(context, instance, driver_bdm)

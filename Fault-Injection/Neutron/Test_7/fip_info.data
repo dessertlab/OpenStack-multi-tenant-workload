@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /neutron/ipam/driver.py
-TARGET CLASS: Pool
-TARGET FUNCTION DEF: get_instance+53;8
-FAULT POINT: return driver_class(subnet_pool, context)

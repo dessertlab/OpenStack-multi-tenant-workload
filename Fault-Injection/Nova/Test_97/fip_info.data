@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-INSTANCE
-TARGET COMPONENT: /nova/compute/manager.py
-TARGET CLASS: ComputeManager
-TARGET FUNCTION DEF: _shutdown_instance+2283;12
-FAULT POINT: compute_utils.notify_about_instance_action(context, instance, self.host, action=fields.NotificationAction.SHUTDOWN, phase=fields.NotificationPhase.START)

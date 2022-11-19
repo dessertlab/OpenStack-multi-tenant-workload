@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-NETWORK
-TARGET COMPONENT: /neutron/scheduler/dhcp_agent_scheduler.py
-TARGET CLASS: DhcpFilter
-TARGET FUNCTION DEF: _get_dhcp_agents_hosting_network+245;8
-FAULT POINT: return network_hosted_agents

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/db/api.py
-TARGET CLASS: None
-TARGET FUNCTION DEF: instance_fault_get_by_instance_uuids+1928;4
-FAULT POINT: return IMPL.instance_fault_get_by_instance_uuids(context, instance_uuids, latest=latest)

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/compute/api.py
-TARGET CLASS: API
-TARGET FUNCTION DEF: _populate_instance_for_create+1536;8
-FAULT POINT: return instance

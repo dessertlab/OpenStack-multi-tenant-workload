@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-INSTANCE
-TARGET COMPONENT: /nova/objects/instance_info_cache.py
-TARGET CLASS: InstanceInfoCache
-TARGET FUNCTION DEF: delete+106;8
-FAULT POINT: db.instance_info_cache_delete(self._context, self.instance_uuid)

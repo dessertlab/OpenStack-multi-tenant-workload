@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
-TARGET COMPONENT: /nova/compute/api.py
-TARGET CLASS: API
-TARGET FUNCTION DEF: _attach_volume+3758;8
-FAULT POINT: return volume_bdm.device_name

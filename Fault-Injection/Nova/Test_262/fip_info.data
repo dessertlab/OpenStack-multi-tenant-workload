@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/compute/stats.py
-TARGET CLASS: Stats
-TARGET FUNCTION DEF: num_instances+76;8
-FAULT POINT: return self.get('num_instances', 0)

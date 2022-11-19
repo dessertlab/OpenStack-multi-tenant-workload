@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/compute/resource_tracker.py
-TARGET CLASS: ResourceTracker
-TARGET FUNCTION DEF: _find_orphaned_instances+1367;8
-FAULT POINT: return orphans

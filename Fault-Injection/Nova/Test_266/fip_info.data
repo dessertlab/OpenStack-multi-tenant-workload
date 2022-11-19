@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/compute/resource_tracker.py
-TARGET CLASS: ResourceTracker
-TARGET FUNCTION DEF: instance_claim+232;8
-FAULT POINT: return claim

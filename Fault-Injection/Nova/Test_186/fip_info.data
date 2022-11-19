@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_PARAMETERS-INSTANCE
-TARGET COMPONENT: /nova/scheduler/manager.py
-TARGET CLASS: SchedulerManager
-TARGET FUNCTION DEF: delete_instance_info+184;8
-FAULT POINT: self.driver.host_manager.delete_instance_info(context, host_name, instance_uuid)

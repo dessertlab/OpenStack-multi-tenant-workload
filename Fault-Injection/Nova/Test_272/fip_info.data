@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/compute/api.py
-TARGET CLASS: API
-TARGET FUNCTION DEF: _get_instances_by_filters_all_cells+2605;8
-FAULT POINT: return objects.InstanceList(objects=instances)

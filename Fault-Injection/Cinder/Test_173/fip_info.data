@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
-TARGET COMPONENT: /cinder/db/sqlalchemy/api.py
-TARGET CLASS: None
-TARGET FUNCTION DEF: _process_volume_filters+2376;4
-FAULT POINT: return query

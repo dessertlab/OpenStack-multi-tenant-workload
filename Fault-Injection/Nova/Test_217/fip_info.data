@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/objects/virtual_interface.py
-TARGET CLASS: VirtualInterfaceList
-TARGET FUNCTION DEF: get_by_instance_uuid+143;8
-FAULT POINT: return base.obj_make_list(context, cls(context), objects.VirtualInterface, db_vifs)

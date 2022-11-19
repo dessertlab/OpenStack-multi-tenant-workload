@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
-TARGET COMPONENT: /cinder/volume/drivers/lvm.py
-TARGET CLASS: LVMVolumeDriver
-TARGET FUNCTION DEF: _volume_not_present+130;8
-FAULT POINT: return (self.vg.get_volume(volume_name) is None)

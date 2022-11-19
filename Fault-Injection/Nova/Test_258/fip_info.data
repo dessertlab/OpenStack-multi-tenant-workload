@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/network/neutronv2/api.py
-TARGET CLASS: API
-TARGET FUNCTION DEF: allocate_for_instance+907;8
-FAULT POINT: return network_model.NetworkInfo([vif for vif in nw_info if (vif['id'] in (created_port_ids + preexisting_port_ids))])

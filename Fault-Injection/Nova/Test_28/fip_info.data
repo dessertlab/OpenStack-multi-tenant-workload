@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-IMAGE
-TARGET COMPONENT: /nova/virt/libvirt/driver.py
-TARGET CLASS: LibvirtDriver
-TARGET FUNCTION DEF: spawn+2889;8
-FAULT POINT: self._create_image(context, instance, disk_info['mapping'], injection_info=injection_info, block_device_info=block_device_info)

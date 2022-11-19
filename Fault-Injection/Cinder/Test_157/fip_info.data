@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-VOLUME
-TARGET COMPONENT: /cinder/db/sqlalchemy/api.py
-TARGET CLASS: None
-TARGET FUNCTION DEF: _volume_x_metadata_get_query+2627;4
-FAULT POINT: return model_query(context, model, session=session, read_deleted='no').filter_by(volume_id=volume_id)

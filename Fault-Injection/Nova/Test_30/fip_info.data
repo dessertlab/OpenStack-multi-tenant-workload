@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-INSTANCE
-TARGET COMPONENT: /nova/db/sqlalchemy/api.py
-TARGET CLASS: None
-TARGET FUNCTION DEF: None+1830;4
-FAULT POINT: ec2_instance_create(context, instance_ref['uuid'])

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /nova/pci/manager.py
-TARGET CLASS: None
-TARGET FUNCTION DEF: get_instance_pci_devs+358;4
-FAULT POINT: return [device for device in pci_devices if ((device.request_id == request_id) or (request_id == 'all'))]

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_WRONG_RETURN_VALUE-INSTANCE
-TARGET COMPONENT: /neutron/agent/metadata/agent.py
-TARGET CLASS: MetadataProxyHandler
-TARGET FUNCTION DEF: _sign_instance_id+226;8
-FAULT POINT: return hmac.new(secret, instance_id, hashlib.sha256).hexdigest()

@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-IMAGE
-TARGET COMPONENT: /nova/virt/libvirt/imagebackend.py
-TARGET CLASS: Qcow2
-TARGET FUNCTION DEF: None+630;16
-FAULT POINT: copy_qcow2_image(base, self.path, size)

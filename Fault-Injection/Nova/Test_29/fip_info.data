@@ -1,5 +1,0 @@
-FAULT TYPE: OPENSTACK_THROW_EXCEPTION-INSTANCE
-TARGET COMPONENT: /nova/db/sqlalchemy/api.py
-TARGET CLASS: None
-TARGET FUNCTION DEF: instance_tag_get_by_instance_uuid+6951;4
-FAULT POINT: _check_instance_exists_in_project(context, instance_uuid)
